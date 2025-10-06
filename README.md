@@ -2,6 +2,12 @@
 
 A comprehensive full-stack life management application that helps you organize your tasks, track your finances, capture your thoughts, and monitor your mood. Built with modern web technologies for a seamless user experience.
 
+## 🚀 Live Demo
+
+- **Frontend**: [View on Vercel](https://lifehub-omega.vercel.app/)
+- **Backend API**: [View on Railway](https://lifehub-production.up.railway.app/)
+
+
 ## 🌟 Features
 
 ### 📊 Dashboard
