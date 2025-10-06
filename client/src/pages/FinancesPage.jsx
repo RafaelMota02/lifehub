@@ -3,6 +3,7 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import FinanceForm from '../components/FinanceForm';
 import Alert from '../components/Alert';
+import { getFinances, createFinance, updateFinance, deleteFinance } from '../services/financeService';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -19,15 +20,7 @@ const FinancesPage = () => {
   // Function to fetch finances
   const fetchFinances = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/finances', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to load transactions');
-      
-      const data = await response.json();
+      const data = await getFinances();
       // Convert amount values to numbers - dates will be handled during sorting
       const formattedData = data.map(entry => ({
         ...entry,
@@ -36,6 +29,7 @@ const FinancesPage = () => {
       setFinances(formattedData);
     } catch (error) {
       console.error('Error loading transactions:', error);
+      setFinances([]); // Clear data on error
     }
   };
 
@@ -149,33 +143,14 @@ const FinancesPage = () => {
 
   const handleAddEntry = async (entry) => {
     try {
-      let url, method, body;
-      
       if (editingEntry) {
-        // Use the ID from the original editingEntry object
-        url = `http://localhost:5000/api/finances/${editingEntry.id}`;
-        method = 'PUT';
-        body = JSON.stringify(entry);
+        await updateFinance(editingEntry.id, entry);
+        showAlert('Transaction updated successfully', 'success');
       } else {
-        url = 'http://localhost:5000/api/finances';
-        method = 'POST';
-        body = JSON.stringify(entry);
+        await createFinance(entry);
+        showAlert('Transaction saved successfully', 'success');
       }
-      
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: body
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || (editingEntry ? 'Failed to update transaction' : 'Failed to save transaction'));
-      }
-      
+
       // Refetch all transactions to get sorted results
       await fetchFinances();
       setShowForm(false);
@@ -193,15 +168,8 @@ const FinancesPage = () => {
   const confirmDelete = async () => {
     const id = deleteConfirmation.id;
     try {
-      const response = await fetch(`http://localhost:5000/api/finances/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to delete transaction');
-      
+      await deleteFinance(id);
+
       // Refetch all transactions to get sorted results
       await fetchFinances();
       setSelectedEntry(null);
