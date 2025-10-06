@@ -36,10 +36,18 @@ app.use(cors({
 
 // Override Railway's strict CSP with API-friendly headers
 app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self' https:;");
+  // Override Railway's default-src 'none' CSP
+  res.removeHeader('Content-Security-Policy');
+  res.setHeader("Content-Security-Policy", "default-src 'self' https: data:; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self' https:; connect-src 'self' https:;");
+  // Ensure CORS headers
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
+});
+
+// Serve a simple favicon to avoid CSP errors
+app.get('/favicon.ico', (req, res) => {
+  res.send(''); // Send empty favicon
 });
 
 // Health check for Railway
