@@ -12,9 +12,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Configure CORS based on environment
-// TEMPORARILY ALLOWING ALL ORIGINS FOR DEBUGGING
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? true // Allow all origins for testing
+  ? ['https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app']
   : ['http://localhost:5173', 'http://localhost:3000'];
 
 // Enable CORS for all routes
