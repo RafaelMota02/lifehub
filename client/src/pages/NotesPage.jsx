@@ -215,7 +215,9 @@ const NotesPage = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-600 mb-4">{note.content}</p>
+                  <p className="text-gray-600 mb-4">
+                    {note.content.length > 20 ? `${note.content.substring(0, 20)}...` : note.content}
+                  </p>
                   <div className="flex items-center text-sm text-gray-500">
                     <CalendarDaysIcon className="h-4 w-4 mr-1" />
                     <span>{new Date(note.created_at).toLocaleDateString()}</span>

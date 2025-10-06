@@ -282,7 +282,9 @@ const TasksPage = () => {
                         </span>
                       </div>
                       {task.description && (
-                        <p className="mt-1 text-sm text-gray-600">{task.description}</p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          {task.description.length > 20 ? `${task.description.substring(0, 20)}...` : task.description}
+                        </p>
                       )}
                       {task.due_date && (
                         <div className={`mt-2 flex items-center text-sm ${isOverdue(task.due_date) ? 'text-red-600' : 'text-gray-500'}`}>

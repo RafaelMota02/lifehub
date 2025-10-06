@@ -323,7 +323,9 @@ const MoodsPage = () => {
                     </span>
                   </div>
                   {entry.notes && (
-                    <p className="mt-2 text-gray-600">{entry.notes}</p>
+                    <p className="mt-2 text-gray-600">
+                      {entry.notes.length > 20 ? `${entry.notes.substring(0, 20)}...` : entry.notes}
+                    </p>
                   )}
                 </div>
               </div>
