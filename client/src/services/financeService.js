@@ -1,7 +1,9 @@
 // Finance service for API interactions
 import axios from 'axios';
 
-const API_URL = '/api/finances';
+const API_URL = import.meta.env.PROD && import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api/finances`
+  : '/api/finances';
 
 // Helper to get auth token
 const getAuthToken = () => {

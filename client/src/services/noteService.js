@@ -1,7 +1,9 @@
 // Note service for API interactions
 import axios from 'axios';
 
-const API_URL = '/api/notes';
+const API_URL = import.meta.env.PROD && import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api/notes`
+  : '/api/notes';
 
 // Helper to get auth token
 const getAuthToken = () => {
