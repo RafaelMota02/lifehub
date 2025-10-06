@@ -40,6 +40,25 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Database connection test
+app.get('/db-test', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM users LIMIT 1');
+    res.status(200).json({
+      status: 'OK',
+      message: 'Database connected successfully',
+      connection: 'Neon PostgreSQL',
+      rowCount: result.rowCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Database connection failed',
+      error: error.message
+    });
+  }
+});
+
 app.use(express.json());
 
 // Mount routes
