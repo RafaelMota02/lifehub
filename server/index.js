@@ -34,6 +34,14 @@ app.use(cors({
   credentials: true
 }));
 
+// Override Railway's strict CSP with API-friendly headers
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self' https:;");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 // Health check for Railway
 app.get('/health', (req, res) => {
   res.status(200).json({
