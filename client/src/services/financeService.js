@@ -6,6 +6,9 @@ const API_URL = import.meta.env.PROD
   ? `https://lifehub-production.up.railway.app/api/finances`
   : '/api/finances';
 
+// DEBUG: Log environment and URL
+console.log('🔧 Finance Service - PROD:', import.meta.env.PROD, 'URL:', API_URL);
+
 // Helper to get auth token
 const getAuthToken = () => {
   return localStorage.getItem('token');

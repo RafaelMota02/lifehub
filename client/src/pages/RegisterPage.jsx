@@ -64,6 +64,13 @@ const RegisterPage = () => {
             <h2 className="mt-6 text-3xl font-bold text-gray-900">
               Create a new account
             </h2>
+            {/* DEBUG INFO */}
+            <div className="mt-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs text-yellow-800">
+              <strong>DEBUG:</strong> PROD: {import.meta.env.PROD?.toString() || 'false'} |
+              API URL: {import.meta.env.PROD
+                ? 'https://lifehub-production.up.railway.app/api/auth'
+                : 'http://localhost:5000/api/auth'}
+            </div>
           </div>
           {error && (
             <div className="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded">
