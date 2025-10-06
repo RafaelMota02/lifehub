@@ -70,12 +70,15 @@ app.use('/api/tasks', auth, tasksRoutes); // Add auth middleware to tasks routes
 app.use('/api/notes', auth, notesRoutes); // Add auth middleware to notes routes
 
 // Catch-all route for frontend routes (prevent 404 errors on refresh)
-app.get('*', (req, res) => {
+app.all('*', (req, res) => {
+  console.log(`Unhandled request: ${req.method} ${req.path}`);
   res.status(200).json({
     message: 'Welcome to LifeHub API server',
     error: 'This path is not handled by the API. Please use the frontend application.',
     frontend: 'https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app',
-    docs: 'Available API endpoints: /health, /db-test, /api/auth/*, /api/finances/*, /api/moods/*, /api/tasks/*, /api/notes/*'
+    docs: 'Available API endpoints: /health, /db-test, /api/auth/*, /api/finances/*, /api/moods/*, /api/tasks/*, /api/notes/*',
+    requestedPath: req.path,
+    method: req.method
   });
 });
 
