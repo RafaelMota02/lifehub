@@ -6,6 +6,7 @@ import moodsRoutes from './routes/moodsRoutes.js';
 import tasksRoutes from './routes/tasksRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
 import auth from './middleware/auth.js'; // Import the auth middleware
+import pool from './db/pool.js';
 import 'dotenv/config';
 
 // Railway requirements
