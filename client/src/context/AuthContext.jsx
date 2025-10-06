@@ -26,9 +26,7 @@ export function AuthProvider({ children }) {
       setLoading(false);
     } else if (token) {
       // Verify token validity if userData is missing
-      const verifyUrl = import.meta.env.PROD
-        ? 'https://lifehub-production.up.railway.app/api/auth/verify'
-        : 'http://localhost:5000/api/auth/verify';
+      const verifyUrl = 'https://lifehub-production.up.railway.app/api/auth/verify';
 
       fetch(verifyUrl, {
         headers: { Authorization: `Bearer ${token}` }
@@ -60,9 +58,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const loginUrl = import.meta.env.PROD
-        ? 'https://lifehub-production.up.railway.app/api/auth/login'
-        : 'http://localhost:5000/api/auth/login';
+      const loginUrl = 'https://lifehub-production.up.railway.app/api/auth/login';
 
       const response = await fetch(loginUrl, {
         method: 'POST',
@@ -85,9 +81,7 @@ export function AuthProvider({ children }) {
 
   const register = async (username, email, password) => {
     try {
-      const registerUrl = import.meta.env.PROD
-        ? 'https://lifehub-production.up.railway.app/api/auth/register'
-        : 'http://localhost:5000/api/auth/register';
+      const registerUrl = 'https://lifehub-production.up.railway.app/api/auth/register';
 
       const response = await fetch(registerUrl, {
         method: 'POST',

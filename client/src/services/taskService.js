@@ -1,10 +1,8 @@
 // Task service for API interactions
 import axios from 'axios';
 
-// Production uses Railway API, development uses local proxy
-const API_URL = import.meta.env.PROD
-  ? `https://lifehub-production.up.railway.app/api/tasks`
-  : '/api/tasks';
+// Use Railway API for both development and production
+const API_URL = `https://lifehub-production.up.railway.app/api/tasks`;
 
 // Helper to get auth token
 const getAuthToken = () => {
