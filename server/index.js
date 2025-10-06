@@ -8,19 +8,54 @@ import notesRoutes from './routes/notesRoutes.js';
 import auth from './middleware/auth.js'; // Import the auth middleware
 import 'dotenv/config';
 
+// Railway requirements
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configure CORS based on environment
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app']
-  : ['http://localhost:5173', 'http://localhost:3000'];
+// Configure CORS dynamically using environment variables
+const allowedOrigins = [
+  'http://localhost:5173', // Vite dev server
+  'http://localhost:3000'  // Alternative dev port
+];
 
-// Enable CORS for all routes
+// Add production frontend URL if specified
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+// Add hardcoded Vercel URL for now (backup)
+if (process.env.NODE_ENV === 'production') {
+  allowedOrigins.push('https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app');
+}
+
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Optional: Handle preflight requests
+app.options('*', cors());
+
+// Health check for Railway
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'LifeHub backend is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use(express.json());
 
 // Mount routes
@@ -30,6 +65,6 @@ app.use('/api/moods', auth, moodsRoutes); // Add auth middleware to moods routes
 app.use('/api/tasks', auth, tasksRoutes); // Add auth middleware to tasks routes
 app.use('/api/notes', auth, notesRoutes); // Add auth middleware to notes routes
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`LifeHub Backend running on port ${PORT}`);
 });
