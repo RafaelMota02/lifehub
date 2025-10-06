@@ -44,9 +44,9 @@ const FinanceForm = ({ onSubmit }) => {
                 inputMode="decimal"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
               {[10, 20, 50, 100].map(value => (
-                <button 
+                <button
                   key={value}
                   type="button"
                   onClick={() => setAmount((parseFloat(amount || 0) + value).toFixed(2))}

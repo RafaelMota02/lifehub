@@ -68,7 +68,7 @@ const TaskForm = ({ onSubmit }) => {
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="form-group">
             <label className="block text-sm font-semibold text-indigo-800 mb-3">Status</label>
             <div className="relative">
@@ -77,8 +77,8 @@ const TaskForm = ({ onSubmit }) => {
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </div>
-              <select 
-                value={status} 
+              <select
+                value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="input-field pl-12 pr-6 py-4"
               >
@@ -88,7 +88,7 @@ const TaskForm = ({ onSubmit }) => {
               </select>
             </div>
           </div>
-          
+
           <div className="form-group">
             <label className="block text-sm font-semibold text-indigo-800 mb-3">Due Date</label>
             <div className="relative">
@@ -97,10 +97,10 @@ const TaskForm = ({ onSubmit }) => {
                   <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                 </svg>
               </div>
-              <input 
-                type="date" 
-                value={dueDate} 
-                onChange={(e) => setDueDate(e.target.value)} 
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
                 className="input-field pl-12 pr-6 py-4"
               />
             </div>
