@@ -269,21 +269,23 @@ const TasksPage = () => {
             {filteredTasks.map(task => {
               const statusInfo = getStatusBadge(task.status);
               return (
-                <div 
-                  key={task.id} 
-                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                <div
+                  key={task.id}
+                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedTask(task)}
                 >
                   <div className="flex items-start space-x-4">
-                    <button 
-                      onClick={() => 
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         handleUpdateStatus(
-                          task.id, 
+                          task.id,
                           task.status === 'done' ? 'todo' : task.status === 'in_progress' ? 'done' : 'in_progress'
-                        )
-                      }
+                        );
+                      }}
                       className={`mt-1 flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                        task.status === 'done' 
-                          ? 'bg-green-500 border-green-500 text-white' 
+                        task.status === 'done'
+                          ? 'bg-green-500 border-green-500 text-white'
                           : 'border-gray-300'
                       }`}
                     >
@@ -295,10 +297,7 @@ const TasksPage = () => {
                     </button>
                     <div>
                       <div className="flex items-center">
-                        <h3
-                          className="font-medium text-gray-900 cursor-pointer hover:text-indigo-600"
-                          onClick={() => setSelectedTask(task)}
-                        >
+                        <h3 className="font-medium text-gray-900">
                           {task.title}
                         </h3>
                         <span className={`ml-3 px-2 py-1 text-xs rounded-full ${statusInfo.color} flex items-center`}>
@@ -325,18 +324,24 @@ const TasksPage = () => {
                   
                   <div className="mt-4 md:mt-0 flex space-x-2">
                     <button
-                      onClick={() => handleUpdateStatus(
-                        task.id, 
-                        task.status === 'todo' ? 'in_progress' : 
-                        task.status === 'in_progress' ? 'done' : 'todo'
-                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUpdateStatus(
+                          task.id,
+                          task.status === 'todo' ? 'in_progress' :
+                          task.status === 'in_progress' ? 'done' : 'todo'
+                        );
+                      }}
                       className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-lg transition-colors"
                     >
-                      {task.status === 'todo' ? 'Start' : 
+                      {task.status === 'todo' ? 'Start' :
                        task.status === 'in_progress' ? 'Complete' : 'Reopen'}
                     </button>
                     <button
-                      onClick={() => handleDeleteTask(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTask(task.id);
+                      }}
                       className="text-sm bg-red-50 hover:bg-red-100 text-red-600 py-1 px-3 rounded-lg transition-colors"
                     >
                       Delete
