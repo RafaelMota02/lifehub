@@ -11,6 +11,7 @@ const NotesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNote, setSelectedNote] = useState(null);
   const [editingNote, setEditingNote] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ show: false, id: null });
 
   // Fetch notes on component mount
   useEffect(() => {
@@ -74,13 +75,22 @@ const NotesPage = () => {
     }
   };
 
-  const handleDeleteNote = async (id) => {
+  const handleDelete = (id) => {
+    setDeleteConfirmation({ show: true, id });
+  };
+
+  const confirmDelete = async () => {
+    const id = deleteConfirmation.id;
     try {
       await deleteNote(id);
       setNotes(notes.filter(note => note.id !== id));
+      if (selectedNote && selectedNote.id === id) {
+        setSelectedNote(null);
+      }
     } catch (error) {
       console.error('Failed to delete note:', error);
-      // TODO: Add error handling UI
+    } finally {
+      setDeleteConfirmation({ show: false, id: null });
     }
   };
 
@@ -215,7 +225,7 @@ const NotesPage = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteNote(note.id);
+                          handleDelete(note.id);
                         }}
                         className="text-red-600 hover:text-red-800"
                       >
@@ -316,12 +326,42 @@ const NotesPage = () => {
                 </button>
                 <button
                   onClick={() => {
-                    handleDeleteNote(selectedNote.id);
+                    handleDelete(selectedNote.id);
                     setSelectedNote(null);
                   }}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <div className="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h3 className="text-xl font-semibold text-gray-800 mt-4">Delete Note</h3>
+              <p className="text-gray-600 mt-2">Are you sure you want to delete this note? This action cannot be undone.</p>
+
+              <div className="mt-6 flex justify-center space-x-4">
+                <button
+                  onClick={() => setDeleteConfirmation({ show: false, id: null })}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete
                 </button>
               </div>
             </div>

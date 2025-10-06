@@ -46,3 +46,19 @@ export const createMood = async (moodData) => {
     throw error;
   }
 };
+
+// Delete a mood entry
+export const deleteMood = async (moodId) => {
+  try {
+    const token = getAuthToken();
+    const response = await axios.delete(`${API_URL}/${moodId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting mood entry', error);
+    throw error;
+  }
+};
