@@ -12,42 +12,29 @@ import 'dotenv/config';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configure CORS dynamically using environment variables
+// Simple CORS that works everywhere
 const allowedOrigins = [
-  'http://localhost:5173', // Vite dev server
-  'http://localhost:3000',  // Alternative dev port
-  // Allow requests with no origin (like mobile apps, Postman)
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app'
 ];
 
-// Add production frontend URL if specified
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-}
-
-// Add hardcoded Vercel URL for now (backup)
-if (process.env.NODE_ENV === 'production') {
-  allowedOrigins.push('https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app');
-}
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   credentials: true
 }));
 
-// Override Railway's strict CSP with API-friendly headers
+// Keep Railway's CSP headers, just ensure CORS works
 app.use((req, res, next) => {
-  // Override Railway's default-src 'none' CSP
-  res.removeHeader('Content-Security-Policy');
-  res.setHeader("Content-Security-Policy", "default-src 'self' https: data:; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; font-src 'self' https:; connect-src 'self' https:;");
-  // Ensure CORS headers
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
-});
-
-// Serve a simple favicon to avoid CSP errors
-app.get('/favicon.ico', (req, res) => {
-  res.send(''); // Send empty favicon
 });
 
 // Health check for Railway
