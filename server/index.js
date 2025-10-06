@@ -11,8 +11,16 @@ import 'dotenv/config';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Configure CORS based on environment
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://lifehub-hkpm952nj-dwayceprdc-7227s-projects.vercel.app']
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 // Mount routes
