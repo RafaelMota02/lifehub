@@ -1,13 +1,11 @@
 // Finance service for API interactions
 import axios from 'axios';
 
-// Production uses Railway API, development uses local proxy
-const API_URL = import.meta.env.PROD
-  ? `https://lifehub-production.up.railway.app/api/finances`
-  : '/api/finances';
+// Use Railway API for both development and production
+const API_URL = `https://lifehub-production.up.railway.app/api/finances`;
 
 // DEBUG: Log environment and URL
-console.log('🔧 Finance Service - PROD:', import.meta.env.PROD, 'URL:', API_URL);
+console.log('🔧 Finance Service - URL:', API_URL);
 
 // Helper to get auth token
 const getAuthToken = () => {
