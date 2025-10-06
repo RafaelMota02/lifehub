@@ -26,7 +26,11 @@ export function AuthProvider({ children }) {
       setLoading(false);
     } else if (token) {
       // Verify token validity if userData is missing
-      fetch('http://localhost:5000/api/auth/verify', {
+      const verifyUrl = import.meta.env.PROD
+        ? 'https://lifehub-production.up.railway.app/api/auth/verify'
+        : 'http://localhost:5000/api/auth/verify';
+
+      fetch(verifyUrl, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
@@ -56,7 +60,11 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const loginUrl = import.meta.env.PROD
+        ? 'https://lifehub-production.up.railway.app/api/auth/login'
+        : 'http://localhost:5000/api/auth/login';
+
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -77,7 +85,11 @@ export function AuthProvider({ children }) {
 
   const register = async (username, email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const registerUrl = import.meta.env.PROD
+        ? 'https://lifehub-production.up.railway.app/api/auth/register'
+        : 'http://localhost:5000/api/auth/register';
+
+      const response = await fetch(registerUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
