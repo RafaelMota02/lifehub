@@ -45,7 +45,7 @@ export const createTask = async (taskData) => {
 export const updateTask = async (taskId, taskData) => {
   try {
     const token = getAuthToken();
-    const response = await axios.put(`${API_URL}/${taskId}`, taskData, {
+    const response = await axios.patch(`${API_URL}/${taskId}`, taskData, {
       headers: {
         Authorization: `Bearer ${token}`
       }
