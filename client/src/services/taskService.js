@@ -1,13 +1,9 @@
 // Task service for API interactions
 import axios from 'axios';
 
-// Ensure production builds have API URL set
-if (import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL) {
-  throw new Error("VITE_API_BASE_URL environment variable is required in production");
-}
-
-const API_URL = import.meta.env.VITE_API_BASE_URL
-  ? `${import.meta.env.VITE_API_BASE_URL}/api/tasks`
+// Production uses Railway API, development uses local proxy
+const API_URL = import.meta.env.PROD
+  ? `https://lifehub-production.up.railway.app/api/tasks`
   : '/api/tasks';
 
 // Helper to get auth token
