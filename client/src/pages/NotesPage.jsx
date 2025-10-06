@@ -10,6 +10,7 @@ const NotesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNote, setSelectedNote] = useState(null);
+  const [editingNote, setEditingNote] = useState(null);
 
   // Fetch notes on component mount
   useEffect(() => {
@@ -193,22 +194,29 @@ const NotesPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNotes.map(note => (
-              <div 
-                key={note.id} 
-                className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+              <div
+                key={note.id}
+                className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => setSelectedNote(note)}
               >
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-semibold text-gray-800">{note.title}</h3>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleEditClick(note)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(note);
+                        }}
                         className="text-amber-600 hover:text-amber-800"
                       >
                         <PencilSquareIcon className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => handleDeleteNote(note.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNote(note.id);
+                        }}
                         className="text-red-600 hover:text-red-800"
                       >
                         <TrashIcon className="h-5 w-5" />
@@ -251,6 +259,71 @@ const NotesPage = () => {
                 onSubmit={selectedNote ? handleEditNote : handleAddNote} 
                 initialData={selectedNote}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Note Details Modal */}
+      {selectedNote && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+            {/* Card Header */}
+            <div className="bg-amber-600 rounded-t-2xl p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white">Note Details</h3>
+                <button onClick={() => setSelectedNote(null)} className="text-white hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Card Body */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">Title</p>
+                  <p className="font-medium text-lg break-words">{selectedNote.title}</p>
+                </div>
+
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">Content</p>
+                  <p className="font-medium break-words whitespace-pre-wrap">{selectedNote.content}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Created</p>
+                  <p className="font-medium">{new Date(selectedNote.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex space-x-4">
+                <button
+                  onClick={() => {
+                    setSelectedNote(null);
+                    setShowForm(true);
+                  }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    handleDeleteNote(selectedNote.id);
+                    setSelectedNote(null);
+                  }}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           </div>
         </div>

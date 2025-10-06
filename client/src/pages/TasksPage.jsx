@@ -10,6 +10,8 @@ const TasksPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [editingEntry, setEditingEntry] = useState(null);
 
   // Fetch tasks on component mount
   useEffect(() => {
@@ -62,8 +64,23 @@ const TasksPage = () => {
       const newTask = await createTask(taskPayload);
       setTasks([...tasks, newTask]);
       setShowForm(false);
+      setEditingEntry(null);
     } catch (error) {
       console.error('Failed to create task:', error);
+      // TODO: Add error handling UI
+    }
+  };
+
+  const handleUpdateTask = async (taskData) => {
+    try {
+      await updateTask(editingEntry.id, taskData);
+      setTasks(tasks.map(task =>
+        task.id === editingEntry.id ? { ...task, ...taskData } : task
+      ));
+      setShowForm(false);
+      setEditingEntry(null);
+    } catch (error) {
+      console.error('Failed to update task:', error);
       // TODO: Add error handling UI
     }
   };
@@ -111,8 +128,11 @@ const TasksPage = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Task Manager</h1>
-        <button 
-          onClick={() => setShowForm(true)}
+        <button
+          onClick={() => {
+            setEditingEntry(null);
+            setShowForm(true);
+          }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg flex items-center transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -275,7 +295,12 @@ const TasksPage = () => {
                     </button>
                     <div>
                       <div className="flex items-center">
-                        <h3 className="font-medium text-gray-900">{task.title}</h3>
+                        <h3
+                          className="font-medium text-gray-900 cursor-pointer hover:text-indigo-600"
+                          onClick={() => setSelectedTask(task)}
+                        >
+                          {task.title}
+                        </h3>
                         <span className={`ml-3 px-2 py-1 text-xs rounded-full ${statusInfo.color} flex items-center`}>
                           {statusInfo.icon}
                           {statusInfo.text}
@@ -330,9 +355,14 @@ const TasksPage = () => {
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">Add New Task</h3>
-                <button 
-                  onClick={() => setShowForm(false)}
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {editingEntry ? 'Edit Task' : 'Add New Task'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowForm(false);
+                    setEditingEntry(null);
+                  }}
                   className="text-gray-400 hover:text-gray-500"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -340,7 +370,90 @@ const TasksPage = () => {
                   </svg>
                 </button>
               </div>
-              <TaskForm onSubmit={handleAddTask} />
+              <TaskForm 
+                onSubmit={editingEntry ? handleUpdateTask : handleAddTask} 
+                initialData={editingEntry}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Task Details Modal */}
+      {selectedTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+            {/* Card Header */}
+            <div className="bg-indigo-600 rounded-t-2xl p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white">Task Details</h3>
+                <button onClick={() => setSelectedTask(null)} className="text-white hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Card Body */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-500 mb-1">Title</p>
+                  <p className="font-medium text-lg break-words">{selectedTask.title}</p>
+                </div>
+
+                {selectedTask.description && (
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-500 mb-1">Description</p>
+                    <p className="font-medium break-words">{selectedTask.description}</p>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Status</p>
+                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    selectedTask.status === 'done' ? 'bg-green-100 text-green-800' :
+                    selectedTask.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {selectedTask.status}
+                  </span>
+                </div>
+
+                {selectedTask.due_date && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Due Date</p>
+                    <p className={`font-medium ${isOverdue(selectedTask.due_date) ? 'text-red-600' : 'text-gray-900'}`}>
+                      {new Date(selectedTask.due_date).toLocaleDateString()}
+                      {isOverdue(selectedTask.due_date) && ' (Overdue)'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex space-x-4">
+                <button
+                  onClick={() => {
+                    setSelectedTask(null);
+                    setEditingEntry(selectedTask);
+                    setShowForm(true);
+                  }}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => {
+                    handleDeleteTask(selectedTask.id);
+                    setSelectedTask(null);
+                  }}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ const MoodsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [averageMood, setAverageMood] = useState(0);
   const [formError, setFormError] = useState('');
+  const [selectedMood, setSelectedMood] = useState(null);
   const { user } = useAuth();
 
   // Fetch moods on mount and when user changes
@@ -303,7 +304,7 @@ const MoodsPage = () => {
                 return b.id - a.id; // Higher IDs first when dates are equal
               })
               .map((entry, index) => (
-              <div key={`${entry.id || 'entry'}-${entry.date || 'no-date'}-${index}`} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+              <div key={`${entry.id || 'entry'}-${entry.date || 'no-date'}-${index}`} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMood(entry)}>
                 <div className="mr-4 mt-1">
                   <span className={`text-2xl ${getMoodColor(entry.mood_level)} p-2 rounded-full`}>
                     {getMoodEmoji(entry.mood_level)}
@@ -370,6 +371,68 @@ const MoodsPage = () => {
                   </div>
                 )}
                 <MoodForm onSubmit={handleAddEntry} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mood Details Modal */}
+      {selectedMood && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+            {/* Card Header */}
+            <div className="bg-purple-600 rounded-t-2xl p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white">Mood Details</h3>
+                <button onClick={() => setSelectedMood(null)} className="text-white hover:text-gray-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Card Body */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Date</p>
+                  <p className="font-medium">{new Date(selectedMood.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Mood Level</p>
+                  <div className="flex items-center">
+                    <span className={`text-2xl mr-2 ${getMoodColor(selectedMood.mood_level)} p-2 rounded-full`}>
+                      {getMoodEmoji(selectedMood.mood_level)}
+                    </span>
+                    <span className={`px-3 py-1 text-sm rounded-full ${getMoodColor(selectedMood.mood_level)}`}>
+                      {selectedMood.mood_level}/10
+                    </span>
+                  </div>
+                </div>
+
+                {selectedMood.notes && (
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-500 mb-1">Notes</p>
+                    <p className="font-medium break-words">{selectedMood.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setSelectedMood(null)}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
