@@ -15,7 +15,8 @@ const PORT = process.env.PORT || 3001;
 // Configure CORS dynamically using environment variables
 const allowedOrigins = [
   'http://localhost:5173', // Vite dev server
-  'http://localhost:3000'  // Alternative dev port
+  'http://localhost:3000',  // Alternative dev port
+  // Allow requests with no origin (like mobile apps, Postman)
 ];
 
 // Add production frontend URL if specified
@@ -29,23 +30,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: allowedOrigins,
+  credentials: true
 }));
-
-// Optional: Handle preflight requests
-app.options('*', cors());
 
 // Health check for Railway
 app.get('/health', (req, res) => {
