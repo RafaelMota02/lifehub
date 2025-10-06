@@ -436,8 +436,8 @@ const TasksPage = () => {
               <div className="mt-8 flex space-x-4">
                 <button
                   onClick={() => {
-                    setSelectedTask(null);
                     setEditingEntry(selectedTask);
+                    setSelectedTask(null);
                     setShowForm(true);
                   }}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
