@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const TaskForm = ({ onSubmit }) => {
+const TaskForm = ({ onSubmit, initialData }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('todo');
   const [dueDate, setDueDate] = useState('');
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setDescription(initialData.description || '');
+      setStatus(initialData.status || 'todo');
+      setDueDate(initialData.due_date || '');
+    }
+  }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,7 +26,7 @@ const TaskForm = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-gradient-to-br from-indigo-50 to-blue-100 rounded-2xl shadow-xl p-6 mb-8 border border-indigo-100 max-w-3xl mx-auto">
-      <h3 className="text-2xl font-bold text-indigo-900 mb-8 pb-4 border-b border-indigo-200">Add New Task</h3>
+      <h3 className="text-2xl font-bold text-indigo-900 mb-8 pb-4 border-b border-indigo-200">{initialData ? 'Edit Task' : 'Add New Task'}</h3>
       
       <div className="space-y-6">
         <div className="form-group">
@@ -107,11 +116,11 @@ const TaskForm = ({ onSubmit }) => {
           </div>
         </div>
         
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-5 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
         >
-          Add Task
+          {initialData ? 'Update Task' : 'Add Task'}
         </button>
       </div>
     </form>
