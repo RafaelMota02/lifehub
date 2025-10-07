@@ -4,24 +4,24 @@ const TaskForm = ({ onSubmit, initialData }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('todo');
-  const [dueDate, setDueDate] = useState('');
+  const [due_date, setDue_date] = useState('');
 
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || '');
       setDescription(initialData.description || '');
       setStatus(initialData.status || 'todo');
-      setDueDate(initialData.due_date || '');
+      setDue_date(initialData.due_date || '');
     }
   }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ title, description, status, dueDate });
+    onSubmit({ title, description, status, due_date });
     setTitle('');
     setDescription('');
     setStatus('todo');
-    setDueDate('');
+    setDue_date('');
   };
 
   return (
@@ -108,8 +108,8 @@ const TaskForm = ({ onSubmit, initialData }) => {
               </div>
               <input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                value={due_date}
+                onChange={(e) => setDue_date(e.target.value)}
                 className="input-field pl-12 pr-6 py-4"
               />
             </div>

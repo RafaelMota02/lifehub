@@ -370,14 +370,9 @@ const FinancesPage = () => {
         </div>
       )}
       <div className="content-block mb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Financial Dashboard</h1>
-            <p className="text-gray-600">Monitor your income, expenses, and financial health.</p>
-          </div>
-          <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
-            Last updated: {new Date().toLocaleString()}
-          </div>
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Financial Dashboard</h1>
+          <p className="text-gray-600">Monitor your income, expenses, and financial health.</p>
         </div>
       </div>
 

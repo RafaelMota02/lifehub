@@ -63,14 +63,9 @@ const DashboardPage = () => {
   return (
     <div className="p-6">
       <div className="content-block mb-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back, {user?.username}!</h1>
-            <p className="text-gray-600">Here's an overview of your progress and recent activity.</p>
-          </div>
-          <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
-            Last updated: {new Date().toLocaleString()}
-          </div>
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back, {user?.username}!</h1>
+          <p className="text-gray-600">Here's an overview of your progress and recent activity.</p>
         </div>
       </div>
       
