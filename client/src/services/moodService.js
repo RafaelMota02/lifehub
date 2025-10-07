@@ -1,8 +1,10 @@
 // Mood service for API interactions
 import axios from 'axios';
 
-// Use Railway API for both development and production
-const API_URL = `https://lifehub-production.up.railway.app/api/moods`;
+// Use localhost for development, Railway for production
+const API_URL = import.meta.env.PROD
+  ? `https://lifehub-production.up.railway.app/api/moods`
+  : `http://localhost:5000/api/moods`;
 
 // Helper to get auth token
 const getAuthToken = () => {

@@ -1,8 +1,10 @@
 // Finance service for API interactions
 import axios from 'axios';
 
-// Use Railway API for both development and production
-const API_URL = `https://lifehub-production.up.railway.app/api/finances`;
+// Use localhost for development, Railway for production
+const API_URL = import.meta.env.PROD
+  ? `https://lifehub-production.up.railway.app/api/finances`
+  : `http://localhost:5000/api/finances`;
 
 // DEBUG: Log environment and URL
 console.log('🔧 Finance Service - URL:', API_URL);
