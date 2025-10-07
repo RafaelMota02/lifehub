@@ -27,7 +27,10 @@ export const updateTask = async (req, res) => {
   const { id } = req.params;
   const { status, title, description, due_date } = req.body;
 
-  console.log('Update task request:', { id, body: req.body });
+  console.log('=== UPDATE TASK REQUEST ===');
+  console.log('Task ID:', id);
+  console.log('Request body:', req.body);
+  console.log('User ID:', req.user?.id);
 
   try {
     // Build dynamic update query with only provided fields
@@ -39,6 +42,7 @@ export const updateTask = async (req, res) => {
       updates.push(`status = $${paramIndex}`);
       values.push(status);
       paramIndex++;
+      console.log('Adding status update:', status);
     }
     if (title !== undefined) {
       updates.push(`title = $${paramIndex}`);
@@ -58,6 +62,7 @@ export const updateTask = async (req, res) => {
 
     // Always update the timestamp
     updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    console.log('Adding updated_at = CURRENT_TIMESTAMP');
 
     if (updates.length === 1) {
       return res.status(400).json({ error: 'No valid fields to update' });
@@ -66,18 +71,24 @@ export const updateTask = async (req, res) => {
     values.push(id); // Add id at the end
     const query = `UPDATE tasks SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
-    console.log('Executing query:', query, 'with values:', values);
+    console.log('=== EXECUTING QUERY ===');
+    console.log('Query:', query);
+    console.log('Values:', values);
 
     const { rows } = await pool.query(query, values);
 
     if (rows.length === 0) {
+      console.log('=== NO ROWS UPDATED ===');
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    console.log('Update successful, returning:', rows[0]);
+    console.log('=== UPDATE SUCCESSFUL ===');
+    console.log('Updated task:', rows[0]);
     res.json(rows[0]);
   } catch (error) {
-    console.error('Update task error:', error);
+    console.error('=== UPDATE TASK ERROR ===');
+    console.error('Error:', error);
+    console.error('Stack:', error.stack);
     res.status(500).json({ error: error.message });
   }
 };

@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.get('/', getTasks);
 router.post('/', createTask);
+router.patch('/:id', updateTask);
 router.put('/:id', updateTask);
 router.delete('/:id', deleteTask);
 
