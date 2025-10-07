@@ -26,16 +26,58 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   const { id } = req.params;
   const { status, title, description, due_date } = req.body;
+
+  console.log('Update task request:', { id, body: req.body });
+
   try {
-    const { rows } = await pool.query(
-      'UPDATE tasks SET status = COALESCE($1, status), title = COALESCE($2, title), description = COALESCE($3, description), due_date = COALESCE($4, due_date), updated_at = CURRENT_TIMESTAMP WHERE id = $5 RETURNING *',
-      [status, title, description, due_date, id]
-    );
+    // Build dynamic update query with only provided fields
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (status !== undefined) {
+      updates.push(`status = $${paramIndex}`);
+      values.push(status);
+      paramIndex++;
+    }
+    if (title !== undefined) {
+      updates.push(`title = $${paramIndex}`);
+      values.push(title);
+      paramIndex++;
+    }
+    if (description !== undefined) {
+      updates.push(`description = $${paramIndex}`);
+      values.push(description);
+      paramIndex++;
+    }
+    if (due_date !== undefined) {
+      updates.push(`due_date = $${paramIndex}`);
+      values.push(due_date);
+      paramIndex++;
+    }
+
+    // Always update the timestamp
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updates.length === 1) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    values.push(id); // Add id at the end
+    const query = `UPDATE tasks SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    console.log('Executing query:', query, 'with values:', values);
+
+    const { rows } = await pool.query(query, values);
+
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Task not found' });
     }
+
+    console.log('Update successful, returning:', rows[0]);
     res.json(rows[0]);
   } catch (error) {
+    console.error('Update task error:', error);
     res.status(500).json({ error: error.message });
   }
 };
