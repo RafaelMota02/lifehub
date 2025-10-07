@@ -12,10 +12,11 @@ export const getTasks = async (req, res) => {
 
 export const createTask = async (req, res) => {
   const { user_id, title, description, status, due_date } = req.body;
+  const finalDueDate = due_date === '' ? null : due_date;
   try {
     const { rows } = await pool.query(
       'INSERT INTO tasks (user_id, title, description, status, due_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [user_id, title, description, status, due_date]
+      [user_id, title, description, status, finalDueDate]
     );
     res.status(201).json(rows[0]);
   } catch (error) {
@@ -55,8 +56,9 @@ export const updateTask = async (req, res) => {
       paramIndex++;
     }
     if (due_date !== undefined) {
+      const finalDue = due_date === '' ? null : due_date;
       updates.push(`due_date = $${paramIndex}`);
-      values.push(due_date);
+      values.push(finalDue);
       paramIndex++;
     }
 
