@@ -276,18 +276,18 @@ const DashboardPage = () => {
                 .slice(0, 3)
                 .map(task => (
                   <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center">
+                    <div className="flex items-center min-w-0 flex-1 mr-4">
                       <input
                         type="checkbox"
                         checked={task.status === 'done'}
                         readOnly
-                        className="mr-3 w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500"
+                        className="mr-3 w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500 flex-shrink-0"
                       />
-                      <span className={`font-medium ${task.status === 'done' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                      <span className={`font-medium truncate ${task.status === 'done' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                         {task.title}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
                       {new Date(task.created_at || task.date).toLocaleDateString()}
                     </span>
                   </div>
@@ -313,11 +313,11 @@ const DashboardPage = () => {
                 .slice(0, 3)
                 .map(finance => (
                   <div key={finance.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center">
-                      <span className={`w-3 h-3 rounded-full mr-3 ${finance.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                      <span className="font-medium text-gray-900">{finance.description}</span>
+                    <div className="flex items-center min-w-0 flex-1 mr-4">
+                      <span className={`w-3 h-3 rounded-full mr-3 flex-shrink-0 ${finance.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                      <span className="font-medium text-gray-900 truncate">{finance.description}</span>
                     </div>
-                    <span className={`font-medium ${finance.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`font-medium flex-shrink-0 ${finance.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                       {finance.type === 'income' ? '+' : '-'}${finance.amount}
                     </span>
                   </div>
@@ -343,8 +343,8 @@ const DashboardPage = () => {
                 .slice(0, 3)
                 .map(mood => (
                   <div key={mood.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1 mr-4">
+                      <div className="flex items-center space-x-1 flex-shrink-0">
                         {[1, 2, 3, 4, 5].map(star => (
                           <span
                             key={star}
@@ -354,11 +354,11 @@ const DashboardPage = () => {
                           </span>
                         ))}
                       </div>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 flex-shrink-0 ml-1">
                         {mood.mood_level}/5 mood
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 flex-shrink-0">
                       {new Date(mood.date).toLocaleDateString()}
                     </span>
                   </div>
