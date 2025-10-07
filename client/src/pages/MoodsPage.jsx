@@ -190,13 +190,25 @@ const MoodsPage = () => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Mood Tracker</h1>
-        <button 
+      <div className="content-block mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Mood Tracker</h1>
+            <p className="text-gray-600">Monitor and understand your emotional well-being.</p>
+          </div>
+          <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
+            Last updated: {new Date().toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Add Mood Button */}
+      <div className="mb-8">
+        <button
           onClick={() => setShowForm(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg flex items-center transition-colors"
+          className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-8 rounded-lg flex items-center transition-colors text-lg"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
           Add Mood Entry

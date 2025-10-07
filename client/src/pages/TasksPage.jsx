@@ -136,72 +136,96 @@ const TasksPage = () => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Task Manager</h1>
+      <div className="content-block mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Task Manager</h1>
+            <p className="text-gray-600">Manage your tasks and stay organized.</p>
+          </div>
+          <div className="text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg">
+            Last updated: {new Date().toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Add Task Button */}
+      <div className="mb-8">
         <button
           onClick={() => {
             setEditingEntry(null);
             setShowForm(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg flex items-center transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-8 rounded-lg flex items-center transition-colors text-lg"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
-          Add Task
+          Add New Task
         </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow p-6 border border-gray-200">
-          <div className="flex items-center">
-            <div className="bg-gray-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="bg-gray-500 p-3 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Total Tasks</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{tasks.length}</p>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Total Tasks</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">All Tasks:</span>
+              <span className="text-gray-700 font-bold text-lg">{tasks.length}</span>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow p-6 border border-blue-200">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-3 rounded-lg mr-4">
-              <ExclamationCircleIcon className="h-6 w-6 text-blue-600" />
+
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="bg-blue-500 p-3 rounded-lg">
+              <ExclamationCircleIcon className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">In Progress</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{inProgressCount}</p>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">In Progress</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Active:</span>
+              <span className="text-blue-600 font-bold text-lg">{inProgressCount}</span>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow p-6 border border-green-200">
-          <div className="flex items-center">
-            <div className="bg-green-100 p-3 rounded-lg mr-4">
-              <CheckCircleIcon className="h-6 w-6 text-green-600" />
+
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-lg p-6 border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="bg-green-500 p-3 rounded-lg">
+              <CheckCircleIcon className="h-6 w-6 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Completed</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{doneCount}</p>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Completed</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Done:</span>
+              <span className="text-green-600 font-bold text-lg">{doneCount}</span>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow p-6 border border-red-200">
-          <div className="flex items-center">
-            <div className="bg-red-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-lg p-6 border border-red-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="bg-red-500 p-3 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Overdue</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{overdueCount}</p>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Overdue</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Overdue:</span>
+              <span className="text-red-600 font-bold text-lg">{overdueCount}</span>
             </div>
           </div>
         </div>
