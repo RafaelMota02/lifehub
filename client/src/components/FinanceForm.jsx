@@ -77,7 +77,7 @@ const FinanceForm = ({ onSubmit }) => {
         )}
 
         {/* Quick amount buttons */}
-        <div className="grid grid-cols-4 gap-2 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
           {[10, 20, 50, 100].map((value, index) => {
             const colors = [
               'bg-accent-lime hover:bg-lime-400 text-lime-900',

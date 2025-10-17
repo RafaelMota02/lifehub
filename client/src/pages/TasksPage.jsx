@@ -228,8 +228,8 @@ const TasksPage = () => {
 
       {/* Task Controls */}
       <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200 mb-16">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <button
               onClick={() => setFilter('all')}
               className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${

@@ -20,7 +20,7 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1">
             <Link
               to="/dashboard"
               className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-white hover:bg-gray-900 transition-all hover:shadow-sm"
@@ -97,7 +97,7 @@ const Navigation = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-black hover:bg-gray-50 transition-all"
@@ -123,7 +123,7 @@ const Navigation = () => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100">
+        <div className="lg:hidden bg-white border-t border-gray-100">
           <div className="px-4 pt-4 pb-6 space-y-2">
             <Link
               to="/dashboard"

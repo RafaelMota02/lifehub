@@ -76,7 +76,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
         {/* Finances Summary Card */}
         <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-emerald-100 hover:border-emerald-200 animate-fade-in-up">
           <div className="flex items-center justify-between mb-6">
@@ -270,7 +270,7 @@ const DashboardPage = () => {
       <div className="mt-12 bg-white rounded-3xl p-8 shadow-lg border border-gray-200">
         <h2 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Recent Activity</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {/* Recent Tasks */}
           {tasks.length > 0 && (
             <div className="group">
@@ -390,7 +390,7 @@ const DashboardPage = () => {
             </div>
             <h3 className="text-2xl font-medium text-gray-900 mb-3">Get started with LifeHub</h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">Add your first tasks, track finances, log moods, or take notes to see your personalized dashboard.</p>
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
               <Link to="/tasks" className="btn-primary text-center">
                 Add Task
               </Link>
