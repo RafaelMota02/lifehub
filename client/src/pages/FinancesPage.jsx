@@ -232,7 +232,25 @@ const FinancesPage = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-white">
+      <div className="mb-16">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">Finances</h1>
+            <p className="text-gray-600 text-lg leading-relaxed">Track your income, expenses, and financial goals.</p>
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Transaction
+          </button>
+        </div>
+      </div>
+
       {alerts.map(alert => (
         <Alert
           key={alert.id}
@@ -241,9 +259,11 @@ const FinancesPage = () => {
         />
       ))}
 
+
+
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[99999]">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <div className="text-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -271,7 +291,7 @@ const FinancesPage = () => {
         </div>
       )}
       {selectedEntry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4"
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
              onClick={() => setSelectedEntry(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg"
                onClick={e => e.stopPropagation()}>
@@ -369,115 +389,133 @@ const FinancesPage = () => {
           </div>
         </div>
       )}
-      <div className="content-block mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Financial Dashboard</h1>
-          <p className="text-gray-600">Monitor your income, expenses, and financial health.</p>
-        </div>
-      </div>
+
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow p-6 border border-green-200">
-          <div className="flex items-center">
-            <div className="bg-green-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-emerald-100 hover:border-emerald-200 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Total Income</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">${totalIncome.toFixed(2)}</p>
+          </div>
+          <h2 className="text-2xl font-bold text-emerald-800 mb-6">Total Income</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-green-600">${totalIncome.toFixed(2)}</span>
+              <p className="text-gray-600 text-sm mt-1">This period</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow p-6 border border-red-200">
-          <div className="flex items-center">
-            <div className="bg-red-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-red-100 hover:border-red-200 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-400 to-red-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Total Expenses</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">${totalExpenses.toFixed(2)}</p>
+          </div>
+          <h2 className="text-2xl font-bold text-red-800 mb-6">Total Expenses</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-red-600">${totalExpenses.toFixed(2)}</span>
+              <p className="text-gray-600 text-sm mt-1">This period</p>
             </div>
           </div>
         </div>
-        
-        <div className={`bg-gradient-to-br ${net >= 0 ? 'from-blue-50 to-blue-100 border-blue-200' : 'from-amber-50 to-amber-100 border-amber-200'} rounded-xl shadow p-6 border`}>
-          <div className="flex items-center">
-            <div className={`p-3 rounded-lg mr-4 ${net >= 0 ? 'bg-blue-100' : 'bg-amber-100'}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${net >= 0 ? 'text-blue-600' : 'text-amber-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-gray-200 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Net Balance</h2>
-              <p className={`text-2xl font-bold mt-1 ${net >= 0 ? 'text-blue-700' : 'text-amber-700'}`}>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Net Balance</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className={`text-3xl font-bold ${net >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
                 ${net.toFixed(2)}
-              </p>
+              </span>
+              <p className="text-gray-600 text-sm mt-1">Net result</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Chart Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Financial Overview</h2>
-          <div className="flex space-x-2">
-            <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200 mb-16">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Financial Overview</h2>
+          <div className="flex space-x-3">
+            <button className="text-sm font-medium text-black hover:text-gray-600 transition-colors px-3 py-1 rounded-lg bg-black text-white">
               Monthly
             </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700">
+            <span className="text-gray-300">|</span>
+            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors px-3 py-1 rounded-lg hover:bg-gray-100">
               Quarterly
             </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700">
+            <span className="text-gray-300">|</span>
+            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors px-3 py-1 rounded-lg hover:bg-gray-100">
               Yearly
             </button>
           </div>
         </div>
         <div className="h-96">
           {finances.length > 0 ? (
-            <Bar data={chartData} options={chartOptions} />
+            <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-100">
+              <Bar data={chartData} options={chartOptions} />
+            </div>
           ) : (
-            <div className="flex items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg">
-              <p className="text-gray-500">No financial data available. Add your first entry!</p>
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg animate-fade-in-up">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No transactions yet</h3>
+              <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Start tracking your financial journey by adding your first transaction</p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center animate-fade-in-up"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Your First Transaction
+              </button>
             </div>
           )}
         </div>
       </div>
 
+
+
       {/* Transaction History */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Transaction History</h2>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200">
+        <h2 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Transaction History</h2>
         
         {finances.length === 0 ? (
-          <div className="text-center py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No transactions</h3>
-            <p className="mt-2 text-gray-500">Get started by adding your first financial transaction</p>
-            <button 
+          <div className="text-center py-16">
+            <div className="w-20 h-20 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg animate-fade-in-up">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No transactions yet</h3>
+            <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Start tracking your expenses and income to gain better financial insights</p>
+            <button
               onClick={() => setShowForm(true)}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+              className="bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center animate-fade-in-up"
             >
-              Add Transaction
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Your First Transaction
             </button>
           </div>
         ) : (
@@ -589,7 +627,7 @@ const FinancesPage = () => {
 
       {/* Add Transaction Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">

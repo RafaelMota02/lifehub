@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import TaskForm from '../components/TaskForm';
 import { CheckCircleIcon, ClockIcon, ExclamationCircleIcon, CalendarDaysIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../hooks/useAuth.js';
+import { useSettings } from '../context/SettingsContext.jsx';
 import { getTasks, createTask, updateTask, deleteTask } from '../services/taskService';
 
 const TasksPage = () => {
   const { user } = useAuth();
+  const { formatDate } = useSettings();
   const [tasks, setTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
@@ -135,163 +137,184 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="content-block mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Task Manager</h1>
-          <p className="text-gray-600">Manage your tasks and stay organized.</p>
+    <div className="min-h-screen bg-white">
+      <div className="mb-16">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">Task Manager</h1>
+            <p className="text-gray-600 text-lg leading-relaxed">Manage your tasks and stay organized.</p>
+          </div>
+          <button
+            onClick={() => {
+              setEditingEntry(null);
+              setShowForm(true);
+            }}
+            className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add New Task
+          </button>
         </div>
       </div>
 
-      {/* Add Task Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => {
-            setEditingEntry(null);
-            setShowForm(true);
-          }}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-8 rounded-lg flex items-center transition-colors text-lg"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add New Task
-        </button>
-      </div>
-
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-gray-200 animate-fade-in-up">
           <div className="flex items-center justify-between mb-6">
-            <div className="bg-gray-500 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Total Tasks</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">All Tasks:</span>
-              <span className="text-gray-700 font-bold text-lg">{tasks.length}</span>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Total Tasks</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{tasks.length}</span>
+              <p className="text-gray-600 text-sm mt-1">All tasks</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-blue-100 hover:border-blue-200 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="flex items-center justify-between mb-6">
-            <div className="bg-blue-500 p-3 rounded-lg">
-              <ExclamationCircleIcon className="h-6 w-6 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <ExclamationCircleIcon className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">In Progress</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Active:</span>
-              <span className="text-blue-600 font-bold text-lg">{inProgressCount}</span>
+          <h2 className="text-2xl font-bold text-blue-800 mb-6">In Progress</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{inProgressCount}</span>
+              <p className="text-gray-600 text-sm mt-1">Active tasks</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl shadow-lg p-6 border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-green-100 hover:border-green-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <div className="flex items-center justify-between mb-6">
-            <div className="bg-green-500 p-3 rounded-lg">
-              <CheckCircleIcon className="h-6 w-6 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <CheckCircleIcon className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Completed</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Done:</span>
-              <span className="text-green-600 font-bold text-lg">{doneCount}</span>
+          <h2 className="text-2xl font-bold text-green-800 mb-6">Completed</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{doneCount}</span>
+              <p className="text-gray-600 text-sm mt-1">Finished tasks</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl shadow-lg p-6 border border-red-200 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-orange-100 hover:border-orange-200 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <div className="flex items-center justify-between mb-6">
-            <div className="bg-red-500 p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Overdue</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Overdue:</span>
-              <span className="text-red-600 font-bold text-lg">{overdueCount}</span>
+          <h2 className="text-2xl font-bold text-orange-800 mb-6">Overdue</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{overdueCount}</span>
+              <p className="text-gray-600 text-sm mt-1">Past due</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Task Controls */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex space-x-2">
-            <button 
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200 mb-16">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-wrap gap-3">
+            <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg ${filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+                filter === 'all'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
             >
               All Tasks
             </button>
-            <button 
+            <button
               onClick={() => setFilter('todo')}
-              className={`px-4 py-2 rounded-lg flex items-center ${filter === 'todo' ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center transition-all ${
+                filter === 'todo'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
             >
-              <ClockIcon className="h-4 w-4 mr-1" /> To Do
+              <ClockIcon className="h-4 w-4 mr-2" /> To Do
             </button>
-            <button 
+            <button
               onClick={() => setFilter('in_progress')}
-              className={`px-4 py-2 rounded-lg flex items-center ${filter === 'in_progress' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center transition-all ${
+                filter === 'in_progress'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
             >
-              <ExclamationCircleIcon className="h-4 w-4 mr-1" /> In Progress
+              <ExclamationCircleIcon className="h-4 w-4 mr-2" /> In Progress
             </button>
-            <button 
+            <button
               onClick={() => setFilter('done')}
-              className={`px-4 py-2 rounded-lg flex items-center ${filter === 'done' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center transition-all ${
+                filter === 'done'
+                  ? 'bg-black text-white shadow-sm'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
             >
-              <CheckCircleIcon className="h-4 w-4 mr-1" /> Completed
+              <CheckCircleIcon className="h-4 w-4 mr-2" /> Completed
             </button>
           </div>
-          
+
           <div className="relative">
             <input
               type="text"
               placeholder="Search tasks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full md:w-64 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="input-field pl-11"
             />
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-4 top-3" />
           </div>
         </div>
       </div>
 
       {/* Task List */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200">
+        <h2 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Task List</h2>
         {tasks.length === 0 ? (
           <div className="text-center py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No tasks yet</h3>
-            <p className="mt-2 text-gray-500">Get started by creating your first task</p>
-            <button 
-              onClick={() => setShowForm(true)}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
-            >
-              Create Task
-            </button>
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-medium text-gray-900 mb-3">No tasks yet</h3>
+            <p className="text-gray-600 mb-8 max-w-sm mx-auto">Get started by creating your first task and taking control of your productivity.</p>
+            <div className="text-left">
+              <button onClick={() => setShowForm(true)} className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 inline-flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Create Task
+              </button>
+            </div>
           </div>
         ) : filteredTasks.length === 0 ? (
           <div className="text-center py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No tasks match your filters</h3>
-            <p className="mt-2 text-gray-500">Try changing your search or filter criteria</p>
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-medium text-gray-900 mb-3">No tasks match your filters</h3>
+            <p className="text-gray-600 max-w-sm mx-auto">Try adjusting your search terms or changing the filter criteria.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -300,10 +323,10 @@ const TasksPage = () => {
               return (
                 <div
                   key={task.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="flex items-center justify-between p-6 border border-gray-100 rounded-xl hover:bg-gray-50 hover:border-gray-200 transition-all duration-200 cursor-pointer group"
                   onClick={() => setSelectedTask(task)}
                 >
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-center space-x-4">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -312,10 +335,10 @@ const TasksPage = () => {
                           task.status === 'done' ? 'todo' : task.status === 'in_progress' ? 'done' : 'in_progress'
                         );
                       }}
-                      className={`mt-1 flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                      className={`flex-shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
                         task.status === 'done'
-                          ? 'bg-green-500 border-green-500 text-white'
-                          : 'border-gray-300'
+                          ? 'bg-black border-black text-white'
+                          : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
                       {task.status === 'done' && (
@@ -324,34 +347,36 @@ const TasksPage = () => {
                         </svg>
                       )}
                     </button>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center">
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className={`font-medium ${task.status === 'done' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                           {task.title}
                         </h3>
-                        <span className={`ml-3 px-2 py-1 text-xs rounded-full ${statusInfo.color} flex items-center`}>
+                        <span className={`ml-3 px-2.5 py-1 text-xs rounded-full ${statusInfo.color} flex items-center`}>
                           {statusInfo.icon}
                           {statusInfo.text}
                         </span>
                       </div>
                       {task.description && (
-                        <p className="mt-1 text-sm text-gray-600">
-                          {task.description.length > 20 ? `${task.description.substring(0, 20)}...` : task.description}
+                        <p className={`mt-2 text-sm ${task.status === 'done' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          {task.description.length > 60 ? `${task.description.substring(0, 60)}...` : task.description}
                         </p>
                       )}
                       {task.due_date && (
-                        <div className={`mt-2 flex items-center text-sm ${isOverdue(task.due_date) ? 'text-red-600' : 'text-gray-500'}`}>
+                        <div className={`mt-2 flex items-center text-sm ${isOverdue(task.due_date) ? 'text-red-500' : 'text-gray-500'}`}>
                           <CalendarDaysIcon className="h-4 w-4 mr-1" />
-                          <span>
-                            Due: {new Date(task.due_date).toLocaleDateString()}
-                            {isOverdue(task.due_date) && ' (Overdue)'}
-                          </span>
+                          <span>Due {formatDate(task.due_date)}</span>
+                          {isOverdue(task.due_date) && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              Overdue
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
-                  
-                  <div className="mt-4 md:mt-0 flex space-x-2">
+
+                  <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -361,7 +386,7 @@ const TasksPage = () => {
                           task.status === 'in_progress' ? 'done' : 'todo'
                         );
                       }}
-                      className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded-lg transition-colors"
+                      className="btn-secondary text-xs px-3 py-1.5"
                     >
                       {task.status === 'todo' ? 'Start' :
                        task.status === 'in_progress' ? 'Complete' : 'Reopen'}
@@ -371,7 +396,7 @@ const TasksPage = () => {
                         e.stopPropagation();
                         handleDelete(task.id);
                       }}
-                      className="text-sm bg-red-50 hover:bg-red-100 text-red-600 py-1 px-3 rounded-lg transition-colors"
+                      className="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-medium px-3 py-1.5 rounded-lg border border-red-200 hover:border-red-300 transition-all duration-200"
                     >
                       Delete
                     </button>
@@ -385,11 +410,11 @@ const TasksPage = () => {
 
       {/* Add Task Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="border-b border-gray-100 p-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {editingEntry ? 'Edit Task' : 'Add New Task'}
                 </h3>
                 <button
@@ -397,15 +422,17 @@ const TasksPage = () => {
                     setShowForm(false);
                     setEditingEntry(null);
                   }}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <TaskForm 
-                onSubmit={editingEntry ? handleUpdateTask : handleAddTask} 
+            </div>
+            <div className="p-6">
+              <TaskForm
+                onSubmit={editingEntry ? handleUpdateTask : handleAddTask}
                 initialData={editingEntry}
               />
             </div>
@@ -415,13 +442,16 @@ const TasksPage = () => {
 
       {/* Task Details Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
-            {/* Card Header */}
-            <div className="bg-indigo-600 rounded-t-2xl p-6">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gray-50 border-b border-gray-100 p-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-white">Task Details</h3>
-                <button onClick={() => setSelectedTask(null)} className="text-white hover:text-gray-200">
+                <h3 className="text-xl font-semibold text-gray-900">Task Details</h3>
+                <button
+                  onClick={() => setSelectedTask(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -429,63 +459,71 @@ const TasksPage = () => {
               </div>
             </div>
 
-            {/* Card Body */}
+            {/* Modal Body */}
             <div className="p-6">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="col-span-2">
-                  <p className="text-sm text-gray-500 mb-1">Title</p>
-                  <p className="font-medium text-lg break-words">{selectedTask.title}</p>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                  <p className="text-gray-900 font-medium break-words">{selectedTask.title}</p>
                 </div>
 
                 {selectedTask.description && (
-                  <div className="col-span-2">
-                    <p className="text-sm text-gray-500 mb-1">Description</p>
-                    <p className="font-medium break-words">{selectedTask.description}</p>
-                  </div>
-                )}
-
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Status</p>
-                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    selectedTask.status === 'done' ? 'bg-green-100 text-green-800' :
-                    selectedTask.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {selectedTask.status}
-                  </span>
-                </div>
-
-                {selectedTask.due_date && (
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Due Date</p>
-                    <p className={`font-medium ${isOverdue(selectedTask.due_date) ? 'text-red-600' : 'text-gray-900'}`}>
-                      {new Date(selectedTask.due_date).toLocaleDateString()}
-                      {isOverdue(selectedTask.due_date) && ' (Overdue)'}
-                    </p>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <p className="text-gray-600 break-words">{selectedTask.description}</p>
                   </div>
                 )}
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      selectedTask.status === 'done' ? 'bg-green-100 text-green-800' :
+                      selectedTask.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {selectedTask.status === 'todo' ? 'To Do' :
+                       selectedTask.status === 'in_progress' ? 'In Progress' :
+                       selectedTask.status === 'done' ? 'Completed' : selectedTask.status}
+                    </span>
+                  </div>
+
+                  {selectedTask.due_date && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                      <p className={`font-medium ${isOverdue(selectedTask.due_date) ? 'text-red-600' : 'text-gray-900'}`}>
+                        {formatDate(selectedTask.due_date)}
+                        {isOverdue(selectedTask.due_date) && (
+                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Overdue
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-8 flex space-x-4">
+              <div className="mt-8 flex gap-3">
                 <button
                   onClick={() => {
                     setEditingEntry(selectedTask);
                     setSelectedTask(null);
                     setShowForm(true);
                   }}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="flex-1 btn-secondary"
                 >
-                  Edit
+                  Edit Task
                 </button>
                 <button
                   onClick={() => {
                     handleDelete(selectedTask.id);
                     setSelectedTask(null);
                   }}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="px-4 py-3 border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-lg font-medium transition-all duration-200"
                 >
-                  Remove
+                  Delete
                 </button>
               </div>
             </div>
@@ -495,27 +533,29 @@ const TasksPage = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <div className="text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <h3 className="text-xl font-semibold text-gray-800 mt-4">Delete Task</h3>
-              <p className="text-gray-600 mt-2">Are you sure you want to delete this task? This action cannot be undone.</p>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Delete Task</h3>
+              <p className="text-gray-600 mb-8">Are you sure you want to delete this task? This action cannot be undone.</p>
 
-              <div className="mt-6 flex justify-center space-x-4">
+              <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteConfirmation({ show: false, id: null })}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 btn-secondary"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200"
                 >
-                  Delete
+                  Delete Task
                 </button>
               </div>
             </div>

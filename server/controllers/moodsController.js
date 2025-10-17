@@ -2,7 +2,8 @@ import pool from '../db/pool.js';
 
 export const getMoodEntries = async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM moods');
+    const userId = req.query.user_id || req.user?.id;
+    const { rows } = await pool.query('SELECT * FROM moods WHERE user_id = $1 ORDER BY date DESC', [userId]);
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });

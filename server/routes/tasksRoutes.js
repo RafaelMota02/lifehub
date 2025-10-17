@@ -5,8 +5,11 @@ import {
   updateTask,
   deleteTask
 } from '../controllers/tasksController.js';
+import auth from '../middleware/auth.js';
 
 const router = express.Router();
+
+router.use(auth); // Apply auth middleware to all routes
 
 router.get('/', getTasks);
 router.post('/', createTask);

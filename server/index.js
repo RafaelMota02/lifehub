@@ -5,6 +5,7 @@ import financesRoutes from './routes/financesRoutes.js';
 import moodsRoutes from './routes/moodsRoutes.js';
 import tasksRoutes from './routes/tasksRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
 import auth from './middleware/auth.js'; // Import the auth middleware
 import pool from './db/pool.js';
 import 'dotenv/config';
@@ -68,6 +69,7 @@ app.use('/api/finances', auth, financesRoutes); // Add auth middleware to financ
 app.use('/api/moods', auth, moodsRoutes); // Add auth middleware to moods routes
 app.use('/api/tasks', auth, tasksRoutes); // Add auth middleware to tasks routes
 app.use('/api/notes', auth, notesRoutes); // Add auth middleware to notes routes
+app.use('/api/settings', settingsRoutes); // Settings routes (auth handled internally)
 
 // Catch-all route for frontend routes (prevent 404 errors on refresh)
 app.all('*', (req, res) => {
@@ -94,6 +96,7 @@ app.all('*', (req, res) => {
           <li>/api/moods/* - Mood endpoints</li>
           <li>/api/tasks/* - Task endpoints</li>
           <li>/api/notes/* - Notes endpoints</li>
+          <li>/api/settings/* - Settings endpoints</li>
         </ul>
         <p>Requested: ${req.method} ${req.path}</p>
       </body>

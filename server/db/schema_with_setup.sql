@@ -1,0 +1,54 @@
+-- Schema for lifehub database - run with: psql "$DATABASE_URL" -f db/schema_with_setup.sql
+
+-- OPTIONAL: Drop tables if you want to reset (uncomment to delete all data)
+-- DROP TABLE IF EXISTS notes CASCADE;
+-- DROP TABLE IF EXISTS tasks CASCADE;
+-- DROP TABLE IF EXISTS moods CASCADE;
+-- DROP TABLE IF EXISTS finances CASCADE;
+-- DROP TABLE IF EXISTS users CASCADE;
+
+-- Create tables
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS finances (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  amount DECIMAL(10,2) NOT NULL,
+  type VARCHAR(10) CHECK (type IN ('income', 'expense')),
+  category VARCHAR(255) NOT NULL,
+  description TEXT,
+  date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS moods (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  mood_level INT CHECK (mood_level BETWEEN 1 AND 10),
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  status VARCHAR(20) CHECK (status IN ('todo', 'in_progress', 'done')),
+  due_date DATE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS notes (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

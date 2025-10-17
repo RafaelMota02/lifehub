@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DocumentTextIcon, PencilSquareIcon, MagnifyingGlassIcon, CalendarDaysIcon, TrashIcon } from '@heroicons/react/24/outline';
 import NoteForm from '../components/NoteForm';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../hooks/useAuth.js';
 import { getNotes, createNote, updateNote, deleteNote } from '../services/noteService';
 
 const NotesPage = () => {
@@ -99,122 +99,135 @@ const NotesPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="content-block mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Notes</h1>
-          <p className="text-gray-600">Capture and organize your thoughts.</p>
+    <div className="min-h-screen bg-white">
+      <div className="mb-16">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">Notes</h1>
+            <p className="text-gray-600 text-lg leading-relaxed">Capture and organize your thoughts.</p>
+          </div>
+          <button
+            onClick={() => {
+              setSelectedNote(null);
+              setShowForm(true);
+            }}
+            className="bg-purple-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Create New Note
+          </button>
         </div>
-      </div>
-
-      {/* Add Note Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => {
-            setSelectedNote(null);
-            setShowForm(true);
-          }}
-          className="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-8 rounded-lg flex items-center transition-colors text-lg"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Create New Note
-        </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow p-6 border border-amber-200">
-          <div className="flex items-center">
-            <div className="bg-amber-100 p-3 rounded-lg mr-4">
-              <DocumentTextIcon className="h-6 w-6 text-amber-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Total Notes</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{notes.length}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow p-6 border border-purple-200">
-          <div className="flex items-center">
-            <div className="bg-purple-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-blue-100 hover:border-blue-200 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Recently Edited</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {notes.length > 0 ? 
-                  new Date(notes[notes.length - 1].created_at).toLocaleDateString() : 
-                  'N/A'
-                }
-              </p>
+          </div>
+          <h2 className="text-2xl font-bold text-blue-800 mb-6">Total Notes</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{notes.length}</span>
+              <p className="text-gray-600 text-sm mt-1">All Notes</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow p-6 border border-blue-200">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-purple-100 hover:border-purple-200 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Created Today</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {notes.filter(note => 
+          </div>
+          <h2 className="text-2xl font-bold text-purple-800 mb-6">Recently Created</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">
+                {notes.length > 0 ?
+                  new Date(notes[notes.length - 1].created_at).toLocaleDateString() :
+                  'N/A'
+                }
+              </span>
+              <p className="text-gray-600 text-sm mt-1">Latest Note</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-orange-100 hover:border-orange-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-orange-800 mb-6">Created Today</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">
+                {notes.filter(note =>
                   new Date(note.created_at).toDateString() === new Date().toDateString()
                 ).length}
-              </p>
+              </span>
+              <p className="text-gray-600 text-sm mt-1">Today</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-8">
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200 mb-16">
         <div className="relative">
           <input
             type="text"
             placeholder="Search notes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+            className="input-field pl-11"
           />
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-4 top-3" />
         </div>
       </div>
 
       {/* Notes List */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200">
+        <h2 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">My Notes</h2>
         {notes.length === 0 ? (
           <div className="text-center py-12">
             <DocumentTextIcon className="h-16 w-16 mx-auto text-gray-400" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No notes yet</h3>
-            <p className="mt-2 text-gray-500">Get started by creating your first note</p>
-            <button 
+            <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No notes yet</h3>
+            <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Start capturing and organizing your thoughts by creating your first note</p>
+            <button
               onClick={() => setShowForm(true)}
-              className="mt-4 bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+              className="bg-purple-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center animate-fade-in-up"
             >
-              Create Note
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Create Your First Note
             </button>
           </div>
         ) : filteredNotes.length === 0 ? (
           <div className="text-center py-12">
-            <MagnifyingGlassIcon className="h-16 w-16 mx-auto text-gray-400" />
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No notes match your search</h3>
-            <p className="mt-2 text-gray-500">Try changing your search term</p>
+            <MagnifyingGlassIcon className="h-16 w-16 mx-auto text-gray-400 animate-fade-in-up" />
+            <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No notes match your search</h3>
+            <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Try adjusting your search term</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNotes.map(note => (
               <div
                 key={note.id}
-                className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                className="border border-gray-200 rounded-xl hover:shadow-md transition-shadow cursor-pointer hover:border-gray-300"
                 onClick={() => setSelectedNote(note)}
               >
                 <div className="p-5">
@@ -226,7 +239,7 @@ const NotesPage = () => {
                           e.stopPropagation();
                           handleEditClick(note);
                         }}
-                        className="text-amber-600 hover:text-amber-800"
+                        className="text-amber-600 hover:text-amber-800 transition-colors"
                       >
                         <PencilSquareIcon className="h-5 w-5" />
                       </button>
@@ -235,7 +248,7 @@ const NotesPage = () => {
                           e.stopPropagation();
                           handleDelete(note.id);
                         }}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 transition-colors"
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -257,7 +270,7 @@ const NotesPage = () => {
 
       {/* Note Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
@@ -284,7 +297,7 @@ const NotesPage = () => {
 
       {/* Note Details Modal */}
       {selectedNote && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
             {/* Card Header */}
             <div className="bg-amber-600 rounded-t-2xl p-6">
@@ -349,7 +362,7 @@ const NotesPage = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[99999]">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <div className="text-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

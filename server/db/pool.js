@@ -1,14 +1,14 @@
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
-const pool = new Pool(process.env.DATABASE_URL ? { 
-  connectionString: process.env.DATABASE_URL, 
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false 
-} : {
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: process.env.PGPORT,
+dotenv.config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // Explicitly set allowed parameters
+  allowExitOnIdle: true,
+  connectionTimeoutMillis: 30000,
 });
 
 export default pool;

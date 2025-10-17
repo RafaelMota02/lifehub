@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import MoodForm from '../components/MoodForm';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../hooks/useAuth.js';
 import { getMoods, createMood, deleteMood } from '../services/moodService';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -15,6 +15,7 @@ const MoodsPage = () => {
   const [formError, setFormError] = useState('');
   const [selectedMood, setSelectedMood] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState({ show: false, id: null });
+  const [moodStreaks, setMoodStreaks] = useState({ current: 0, best: 0 });
   const { user } = useAuth();
 
   // Fetch moods on mount and when user changes
@@ -40,18 +41,18 @@ const MoodsPage = () => {
     fetchMoods();
   }, [user]);
 
-  // Calculate average mood and update chart
+  // Calculate average mood, streaks and update chart
   useEffect(() => {
     if (Array.isArray(moods) && moods.length > 0) {
       try {
         const total = moods.reduce((sum, mood) => sum + mood.mood_level, 0);
         setAverageMood(total / moods.length);
-        
+
         // For the chart, sort by mood date in ascending order (oldest first)
         const sortedMoods = [...moods].sort((a, b) => {
           return new Date(a.date) - new Date(b.date);
         });
-        
+
         // Format dates consistently for the chart
         const labels = sortedMoods.map(mood => {
           const date = new Date(mood.date);
@@ -60,7 +61,7 @@ const MoodsPage = () => {
             day: 'numeric'
           });
         });
-        
+
         const moodData = sortedMoods.map(mood => mood.mood_level);
 
         setChartData({
@@ -80,14 +81,45 @@ const MoodsPage = () => {
             }
           ]
         });
+
+        // Calculate mood streaks (consecutive days with mood >= 7)
+        let currentStreak = 0;
+        let bestStreak = 0;
+        const validMoods = sortedMoods.filter(m => !isNaN(m.mood_level));
+
+        // Sort by date desc to calculate streaks from most recent
+        const sortedByDateDesc = validMoods.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        for (let i = 0; i < sortedByDateDesc.length; i++) {
+          const mood = sortedByDateDesc[i];
+          const nextMood = sortedByDateDesc[i + 1];
+          const daysDiff = nextMood ?
+            (new Date(mood.date) - new Date(nextMood.date)) / (1000 * 60 * 60 * 24) : 2;
+
+          if (mood.mood_level >= 7) {
+            currentStreak++;
+            if (currentStreak > bestStreak) bestStreak = currentStreak;
+          } else {
+            break; // Break on first bad mood (working backwards from today)
+          }
+
+          // Break if not consecutive days
+          if (daysDiff > 1 && i < sortedByDateDesc.length - 1) {
+            break;
+          }
+        }
+
+        setMoodStreaks({ current: currentStreak, best: bestStreak });
       } catch (error) {
         console.error('Error processing moods data:', error);
         setAverageMood(0);
         setChartData({ labels: [], datasets: [] });
+        setMoodStreaks({ current: 0, best: 0 });
       }
     } else {
       setAverageMood(0);
       setChartData({ labels: [], datasets: [] });
+      setMoodStreaks({ current: 0, best: 0 });
     }
   }, [moods]);
 
@@ -189,139 +221,200 @@ const MoodsPage = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="content-block mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Mood Tracker</h1>
-          <p className="text-gray-600">Monitor and understand your emotional well-being.</p>
+    <div className="min-h-screen bg-white">
+      <div className="mb-16">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">Mood Tracker</h1>
+            <p className="text-gray-600 text-lg leading-relaxed">Monitor and understand your emotional well-being.</p>
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Mood Entry
+          </button>
         </div>
-      </div>
-
-      {/* Add Mood Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-purple-500 hover:bg-purple-600 text-white font-medium py-3 px-8 rounded-lg flex items-center transition-colors text-lg"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add Mood Entry
-        </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl shadow p-6 border border-purple-200">
-          <div className="flex items-center">
-            <div className="bg-purple-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-blue-100 hover:border-blue-200 animate-fade-in-up">
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Total Entries</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{moods.length}</p>
+          </div>
+          <h2 className="text-2xl font-bold text-blue-800 mb-6">Total Entries</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{moods.length}</span>
+              <p className="text-gray-600 text-sm mt-1">Logged moods</p>
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow p-6 border border-blue-200">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-purple-100 hover:border-purple-200 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Average Mood</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {moods.length > 0 ? averageMood.toFixed(1) : '0.0'}
-              </p>
+          </div>
+          <h2 className="text-2xl font-bold text-purple-800 mb-6">Average Mood</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{moods.length > 0 ? averageMood.toFixed(1) : '0.0'}</span>
+              <p className="text-gray-600 text-sm mt-1">Average level</p>
+              {moods.length > 0 && (
+                <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-black h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(averageMood / 10) * 100}%` }}
+                  ></div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        
-        <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl shadow p-6 border border-pink-200">
-          <div className="flex items-center">
-            <div className="bg-pink-100 p-3 rounded-lg mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-green-100 hover:border-green-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <div>
-              <h2 className="text-lg font-medium text-gray-700">Current Mood</h2>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
-                {moods.length > 0 ? (
-                  <span className={`px-3 py-1 rounded-full ${getMoodColor(moods[moods.length - 1].mood_level)}`}>
-                    {moods[moods.length - 1].mood_level}/10
-                  </span>
-                ) : 'N/A'}
-              </p>
+          </div>
+          <h2 className="text-2xl font-bold text-green-800 mb-6">Current Mood</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            {moods.length > 0 ? (
+              <div className="text-center">
+                <span className="text-5xl mb-3 block">
+                  {getMoodEmoji(moods[moods.length - 1].mood_level)}
+                </span>
+                <span className={`text-xl font-semibold ${getMoodColor(moods[moods.length - 1].mood_level)}`}>
+                  {moods[moods.length - 1].mood_level}/10
+                </span>
+                <p className="text-gray-600 text-sm mt-1">Latest entry</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <span className="text-3xl font-bold text-gray-400">-</span>
+                <p className="text-gray-600 text-sm mt-1">No entries yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-orange-100 hover:border-orange-200 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mr-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold text-orange-800 mb-6">Mood Streaks</h2>
+          <div className="space-y-2 min-h-[120px] flex flex-col justify-center">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-gray-900">{moodStreaks.current}</span>
+              <p className="text-gray-600 text-sm mt-1">Current streak</p>
+              <div className="mt-2 flex items-center justify-center space-x-3">
+                <div className="text-center">
+                  <span className="text-lg font-semibold text-gray-700">{moodStreaks.best}</span>
+                  <p className="text-xs text-gray-500">Best</p>
+                </div>
+              </div>
+              {moodStreaks.current > 0 && (
+                <div className="mt-3">
+                  <div className="inline-flex items-center px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                    🔥 {moodStreaks.current} day streak!
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Chart Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Mood History</h2>
-          <div className="flex space-x-2">
-            <button className="text-sm font-medium text-purple-600 hover:text-purple-800">
-              7 Days
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200 mb-16">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Mood History</h2>
+          <div className="flex space-x-3">
+            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors px-3 py-1 rounded-lg hover:bg-gray-100">
+              Weekly
             </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700">
-              30 Days
+            <span className="text-gray-300">|</span>
+            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors px-3 py-1 rounded-lg hover:bg-gray-100">
+              Daily
             </button>
-            <button className="text-sm font-medium text-gray-500 hover:text-gray-700">
-              All Time
+            <span className="text-gray-300">|</span>
+            <button className="text-sm font-medium hover:text-gray-600 transition-colors px-3 py-1 rounded-lg bg-black text-white">
+              Monthly
             </button>
           </div>
         </div>
         <div className="h-96">
           {moods.length > 0 ? (
-            <Line data={chartData} options={chartOptions} />
+            <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border border-gray-100">
+              <Line data={chartData} options={chartOptions} />
+            </div>
           ) : (
-            <div className="flex items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg">
-              <p className="text-gray-500">No mood data available. Add your first entry!</p>
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg animate-fade-in-up">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No mood data yet</h3>
+              <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Start tracking your emotional well-being by adding your first mood entry</p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center animate-fade-in-up"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Your First Mood Entry
+              </button>
             </div>
           )}
         </div>
       </div>
 
       {/* Mood History */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Recent Mood Entries</h2>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search entries..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
-        
+      <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-200">
+        <h2 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">Recent Mood Entries</h2>
+
         {moods.length === 0 ? (
-          <div className="text-center py-12">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">No mood entries</h3>
-            <p className="mt-2 text-gray-500">Start tracking your mood to see your emotional patterns</p>
-            <button 
+          <div className="text-center py-16">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg animate-fade-in-up">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-2xl font-bold text-gray-900 animate-fade-in-up">No mood entries yet</h3>
+            <p className="mb-8 mt-2 text-gray-600 text-lg leading-relaxed max-w-md mx-auto animate-fade-in-up">Start tracking your emotional well-being by logging your first mood entry</p>
+            <button
               onClick={() => setShowForm(true)}
-              className="mt-4 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+              className="bg-blue-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center animate-fade-in-up"
             >
-              Add Mood Entry
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Your First Mood Entry
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {Array.isArray(moods) && [...moods]
               .sort((a, b) => {
                 // Compare creation dates lexicographically (ISO format is sortable)
@@ -331,30 +424,32 @@ const MoodsPage = () => {
                 return b.id - a.id; // Higher IDs first when dates are equal
               })
               .map((entry, index) => (
-              <div key={`${entry.id || 'entry'}-${entry.date || 'no-date'}-${index}`} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setSelectedMood(entry)}>
-                <div className="mr-4 mt-1">
-                  <span className={`text-2xl ${getMoodColor(entry.mood_level)} p-2 rounded-full`}>
-                    {getMoodEmoji(entry.mood_level)}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-gray-900 text-center">
-                      {new Date(entry.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </h3>
-                    <span className={`px-3 py-1 text-sm rounded-full ${getMoodColor(entry.mood_level)}`}>
-                      {entry.mood_level}/10
-                    </span>
+              <div key={`${entry.id || 'entry'}-${entry.date || 'no-date'}-${index}`} className="p-6 bg-gray-50 border border-gray-100 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => setSelectedMood(entry)}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 ${getMoodColor(entry.mood_level)} rounded-2xl flex items-center justify-center shadow-lg`}>
+                      <span className="text-2xl">{getMoodEmoji(entry.mood_level)}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-lg">
+                        {new Date(entry.date).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </h3>
+                      {entry.notes && (
+                        <p className="text-gray-600 text-sm mt-1 max-w-md">
+                          {entry.notes.length > 50 ? `${entry.notes.substring(0, 50)}...` : entry.notes}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {entry.notes && (
-                    <p className="mt-2 text-gray-600">
-                      {entry.notes.length > 20 ? `${entry.notes.substring(0, 20)}...` : entry.notes}
-                    </p>
-                  )}
+                  <div className="text-right">
+                    <div className={`inline-flex items-center px-4 py-2 ${getMoodColor(entry.mood_level)} rounded-xl text-lg font-semibold shadow-lg`}>
+                      {entry.mood_level}/10
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -364,7 +459,7 @@ const MoodsPage = () => {
 
       {/* Add Mood Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
@@ -405,7 +500,7 @@ const MoodsPage = () => {
 
       {/* Mood Details Modal */}
       {selectedMood && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
             {/* Card Header */}
             <div className="bg-purple-600 rounded-t-2xl p-6">
@@ -476,7 +571,7 @@ const MoodsPage = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[99999]">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <div className="text-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

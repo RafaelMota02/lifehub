@@ -5,6 +5,7 @@ const TaskForm = ({ onSubmit, initialData }) => {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('todo');
   const [due_date, setDue_date] = useState('');
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (initialData) {
@@ -12,115 +13,138 @@ const TaskForm = ({ onSubmit, initialData }) => {
       setDescription(initialData.description || '');
       setStatus(initialData.status || 'todo');
       setDue_date(initialData.due_date || '');
+    } else {
+      // Reset form when no initial data
+      setTitle('');
+      setDescription('');
+      setStatus('todo');
+      setDue_date('');
+      setErrors({});
     }
   }, [initialData]);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!title.trim()) {
+      newErrors.title = 'Please provide a task title';
+    } else if (title.length < 3) {
+      newErrors.title = 'Title must be at least 3 characters';
+    }
+
+    if (description && description.length > 200) {
+      newErrors.description = 'Description cannot exceed 200 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     onSubmit({ title, description, status, due_date });
-    setTitle('');
-    setDescription('');
-    setStatus('todo');
-    setDue_date('');
+
+    // Only reset if not editing
+    if (!initialData) {
+      setTitle('');
+      setDescription('');
+      setStatus('todo');
+      setDue_date('');
+      setErrors({});
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gradient-to-br from-indigo-50 to-blue-100 rounded-2xl shadow-xl p-6 mb-8 border border-indigo-100 max-w-3xl mx-auto">
-      <h3 className="text-2xl font-bold text-indigo-900 mb-8 pb-4 border-b border-indigo-200">{initialData ? 'Edit Task' : 'Add New Task'}</h3>
-      
-      <div className="space-y-6">
-        <div className="form-group">
-          <label className="block text-sm font-semibold text-indigo-800 mb-3">Title</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-indigo-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => setTitle(e.target.value)} 
-              required
-              className="input-field pl-12 pr-6 py-4"
-              placeholder="Task title"
-              maxLength="100"
-            />
-            <div className="absolute right-3 top-3.5 flex items-center">
-              <span className="text-xs font-medium text-indigo-500 bg-white px-2 py-1 rounded">
-                {title.length}/100
-              </span>
-            </div>
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Title */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Task Title *
+        </label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          className={`input-field ${errors.title ? 'border-red-300' : ''}`}
+          placeholder="What needs to be done?"
+          maxLength="100"
+        />
+        <div className="flex justify-between items-center mt-1">
+          {errors.title && (
+            <p className="text-sm text-red-600">{errors.title}</p>
+          )}
+          <p className="text-sm text-gray-500 ml-auto">
+            {title.length}/100
+          </p>
         </div>
-        
-        <div className="form-group">
-          <label className="block text-sm font-semibold text-indigo-800 mb-3">Description</label>
-          <div className="relative">
-            <div className="absolute top-4 left-4 text-indigo-600">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <textarea 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
-              className="input-field w-full min-h-[120px] pl-12 pr-10"
-              placeholder="Task details"
-              maxLength="200"
-            />
-            <div className="absolute right-3 bottom-3 flex items-center">
-              <span className="text-xs font-medium text-indigo-500 bg-white px-2 py-1 rounded">
-                {description.length}/200
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="form-group">
-            <label className="block text-sm font-semibold text-indigo-800 mb-3">Status</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-indigo-600">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="input-field pl-12 pr-6 py-4"
-              >
-                <option value="todo">To Do</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
-              </select>
-            </div>
-          </div>
+      </div>
 
-          <div className="form-group">
-            <label className="block text-sm font-semibold text-indigo-800 mb-3">Due Date</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4 text-indigo-600">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <input
-                type="date"
-                value={due_date}
-                onChange={(e) => setDue_date(e.target.value)}
-                className="input-field pl-12 pr-6 py-4"
-              />
-            </div>
-          </div>
+      {/* Description */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description
+        </label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="input-field placeholder-opacity-50"  style={{ minHeight: '120px', resize: 'vertical' }}
+          placeholder="Add optional details about this task..."
+          maxLength="200"
+          rows="4"
+        />
+        <div className="flex justify-between items-center mt-1">
+          {errors.description && (
+            <p className="text-sm text-red-600">{errors.description}</p>
+          )}
+          <p className="text-sm text-gray-500 ml-auto">
+            {description.length}/200
+          </p>
         </div>
-        
+      </div>
+
+      {/* Status and Due Date */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Status
+          </label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="input-field"
+          >
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Completed</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Due Date
+          </label>
+          <input
+            type="date"
+            value={due_date}
+            onChange={(e) => setDue_date(e.target.value)}
+            className="input-field"
+          />
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <div className="pt-4">
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-5 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+          className="btn-primary w-full"
         >
-          {initialData ? 'Update Task' : 'Add Task'}
+          {initialData ? 'Update Task' : 'Create Task'}
         </button>
       </div>
     </form>
